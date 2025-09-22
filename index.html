@@ -1,0 +1,348 @@
+# wat.ai CLUB WEBSITE — Starter
+
+This textdoc contains a one-file starter website (`index.html`) you can edit and deploy as the **official wat.ai club site**. It also includes **example serverless function** code (Netlify / Vercel) you can use to power a real chatbot securely (API key hidden in server env).
+
+---
+
+## What I included
+
+1. `index.html` — a complete, responsive, Tailwind-powered single-file website for a student AI club (Wat.AI). It contains: Hero, About, Projects, Get Involved, Contact, and a **chatbot widget**. The chatbot runs in two modes:
+   - **Demo mode (default)** — a rules-based local bot (great for demos; no API keys).
+   - **Real API mode** — toggled via a variable; it calls a serverless proxy endpoint (examples included) which forwards requests to an AI provider (OpenAI). *Do not put API keys into client-side code.*
+
+2. `netlify/functions/openai-chat.js` — example Netlify function (Node) that accepts `{ message }` and calls the OpenAI Chat API. Set `OPENAI_API_KEY` in Netlify env vars before deploying.
+
+3. `api/openai-chat.js` — example Vercel serverless function for the same purpose.
+
+4. README-style step-by-step (below the code blocks) showing how to customize, test locally, push to GitHub, and deploy (Netlify / Vercel / GitHub Pages).
+
+---
+
+<!-- index.html -->
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wat.AI — University of Waterloo AI Club</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <!-- NAV -->
+  <nav class="bg-white shadow-md">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold">W</div>
+        <div>
+          <div class="font-bold">Wat.AI</div>
+          <div class="text-xs text-gray-500">University of Waterloo</div>
+        </div>
+      </div>
+      <div class="hidden md:flex gap-6 text-sm text-gray-600">
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#join">Get Involved</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="max-w-5xl mx-auto px-6 py-12 text-center">
+    <h1 class="text-4xl md:text-5xl font-extrabold">Wat.AI</h1>
+    <p class="mt-4 text-gray-600 max-w-2xl mx-auto">A student-run community at the University of Waterloo focused on machine learning, robotics, and practical AI projects. We build, learn, and collaborate.</p>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 pb-24">
+    <!-- ABOUT -->
+    <section id="about" class="bg-white p-6 rounded-lg shadow-sm mb-6">
+      <h2 class="text-2xl font-semibold">About</h2>
+      <p class="mt-2 text-gray-600">Wat.AI brings together students across faculties to run project teams, workshops, and research collaborations. We emphasize hands-on learning and open collaboration.</p>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="bg-white p-6 rounded-lg shadow-sm mb-6">
+      <h2 class="text-2xl font-semibold">Projects</h2>
+      <ul class="mt-4 space-y-3 text-gray-700">
+        <li><strong>Micro-robot swarm</strong> — magnetic micro-robots navigation demo (WIP)</li>
+        <li><strong>Vision for RoboCar</strong> — object detection + control loop for small autonomous vehicle</li>
+        <li><strong>ML for medical signals</strong> — classification pipeline and visualizations</li>
+      </ul>
+      <p class="mt-3 text-sm text-gray-500">(Replace these project placeholders with the club's real projects in the file.)</p>
+    </section>
+
+    <!-- JOIN -->
+    <section id="join" class="bg-white p-6 rounded-lg shadow-sm mb-6">
+      <h2 class="text-2xl font-semibold">Get Involved</h2>
+      <p class="mt-2 text-gray-600">We run weekly meetings, workshops, and project sign-ups. All University of Waterloo students are welcome.</p>
+      <ul class="mt-3 text-gray-700">
+        <li><strong>Weekly meeting</strong>: Mondays 7–8pm — E5 123 (example)</li>
+        <li><strong>Discord</strong>: invite link (put real link here)</li>
+      </ul>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="bg-white p-6 rounded-lg shadow-sm mb-6">
+      <h2 class="text-2xl font-semibold">Contact</h2>
+      <p class="mt-2 text-gray-600">Email: <a href="mailto:wat.ai@uwaterloo.ca" class="text-blue-600">wat.ai@uwaterloo.ca</a></p>
+      <p class="mt-1 text-gray-600">GitHub / Discord / Social links: replace with real URLs in the file.</p>
+    </section>
+  </main>
+
+  <!-- CHAT WIDGET -->
+  <div id="chat-widget" class="fixed right-6 bottom-6 w-80 md:w-96 z-40">
+    <div id="chat-button" class="bg-blue-600 text-white p-3 rounded-full shadow-lg cursor-pointer flex items-center justify-center">
+      Chat with Wat.AI
+    </div>
+
+    <!-- Chat window (hidden until open) -->
+    <div id="chat-window" class="hidden mt-3 bg-white rounded-lg shadow-lg overflow-hidden flex flex-col" style="height:420px;">
+      <div class="px-4 py-3 border-b">
+        <div class="font-semibold">Wat.AI Assistant</div>
+        <div class="text-xs text-gray-500">Demo chatbot — safe for live demo</div>
+      </div>
+      <div id="messages" class="p-4 flex-1 overflow-auto text-sm space-y-3"></div>
+
+      <form id="chat-form" class="p-3 border-t flex items-center gap-2">
+        <input id="chat-input" class="flex-1 border rounded px-3 py-2 text-sm" placeholder="Ask about meetings, projects, or how to join" />
+        <button type="submit" class="bg-blue-600 text-white px-3 py-2 rounded">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // CONFIGURATION -----
+    // Toggle this to `true` if you've deployed the serverless function and set API_ENDPOINT.
+    const API_MODE = false; // <<-- change to true to enable real AI via serverless proxy
+    // If API_MODE is true, set API_ENDPOINT to your deployed function path:
+    // - Netlify example: '/.netlify/functions/openai-chat'
+    // - Vercel example: '/api/openai-chat'
+    const API_ENDPOINT = '/.netlify/functions/openai-chat';
+    // ----------------------
+
+    // UI refs
+    const chatButton = document.getElementById('chat-button');
+    const chatWindow = document.getElementById('chat-window');
+    const messagesEl = document.getElementById('messages');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+
+    chatButton.addEventListener('click', () => {
+      chatWindow.classList.toggle('hidden');
+      if (!chatWindow.classList.contains('hidden')) chatInput.focus();
+    });
+
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if (!text) return;
+      appendMessage('user', text);
+      chatInput.value = '';
+      // get response
+      if (API_MODE) {
+        appendMessage('bot', 'Thinking...');
+        try {
+          const res = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
+          });
+          const data = await res.json();
+          // remove the 'Thinking...' placeholder
+          removeLastBotPlaceholder();
+          appendMessage('bot', data.reply || 'Sorry, no reply.');
+        } catch (err) {
+          removeLastBotPlaceholder();
+          appendMessage('bot', 'Error contacting server. Check deployment and environment variables.');
+          console.error(err);
+        }
+      } else {
+        // Local demo bot (rules-based) -- safe for live demos without any keys
+        appendMessage('bot', '...');
+        setTimeout(() => {
+          removeLastBotPlaceholder();
+          appendMessage('bot', fakeAiResponse(text));
+        }, 600 + Math.random() * 600);
+      }
+    });
+
+    function appendMessage(who, text) {
+      const wrapper = document.createElement('div');
+      wrapper.className = who === 'user' ? 'text-right' : 'text-left';
+      const bubble = document.createElement('div');
+      bubble.className = (who === 'user') ? 'inline-block bg-blue-600 text-white px-3 py-2 rounded-lg max-w-[85%]' : 'inline-block bg-gray-100 text-gray-800 px-3 py-2 rounded-lg max-w-[85%]';
+      bubble.innerText = text;
+      wrapper.appendChild(bubble);
+      messagesEl.appendChild(wrapper);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+    function removeLastBotPlaceholder() {
+      const items = Array.from(messagesEl.children).reverse();
+      for (const item of items) {
+        if (item.textContent.trim() === '...') { item.remove(); return; }
+        if (item.textContent.trim() === 'Thinking...') { item.remove(); return; }
+      }
+    }
+
+    // Simple keyword-based responses for demo mode. Replace with better logic or enable API_MODE.
+    function fakeAiResponse(input) {
+      const p = input.toLowerCase();
+      if (/\b(hello|hi|hey)\b/.test(p)) return 'Hi — welcome to Wat.AI! We run projects, workshops, and socials. Want to learn about projects or how to join?';
+      if (/\b(project|research|demo|robot|robotics|vision|ml|machine learning)\b/.test(p)) return 'We run ML and robotics projects. Check the Projects section for current teams. If you want to join, ask about signups.';
+      if (/\b(join|become|member|how to join)\b/.test(p)) return 'Students join via project signups or at our info sessions. Email wat.ai@uwaterloo.ca or drop by a meeting to get started.';
+      if (/\b(meet|meeting|time|when)\b/.test(p)) return 'We usually meet weekly — check the Get Involved section on the site for the latest schedule.';
+      if (/\b(contact|email|github|discord)\b/.test(p)) return 'Email wat.ai@uwaterloo.ca or check our GitHub and Discord links in the Contact section.';
+      return "Thanks — we'll pass this to our team. If you want a detailed answer, enable the club's AI chatbot by deploying the serverless function and switching API_MODE to true.";
+    }
+
+    // optional: keyboard shortcut to open chat (press "/")
+    window.addEventListener('keydown', (e) => {
+      if (e.key === '/') {
+        e.preventDefault();
+        if (chatWindow.classList.contains('hidden')) chatWindow.classList.remove('hidden');
+        chatInput.focus();
+      }
+    });
+
+  </script>
+</body>
+</html>
+```
+
+---
+
+<!-- netlify/functions/openai-chat.js -->
+
+```js
+// netlify/functions/openai-chat.js
+// Example Netlify function that proxies chat messages to OpenAI's Chat API.
+// Set OPENAI_API_KEY in your Netlify site's environment variables before deploying.
+
+const fetch = global.fetch || require('node-fetch');
+
+exports.handler = async function(event, context) {
+  try {
+    const body = JSON.parse(event.body || '{}');
+    const message = body.message || '';
+
+    if (!process.env.OPENAI_API_KEY) {
+      return { statusCode: 500, body: JSON.stringify({ error: 'OPENAI_API_KEY not set on server' }) };
+    }
+
+    const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini', // replace with the model you have access to
+        messages: [{ role: 'user', content: message }],
+        max_tokens: 500
+      })
+    });
+
+    const data = await openaiRes.json();
+    const reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || data.choices?.[0]?.text || 'No reply';
+
+    return { statusCode: 200, body: JSON.stringify({ reply }) };
+  } catch (err) {
+    console.error(err);
+    return { statusCode: 500, body: JSON.stringify({ error: 'Server error' }) };
+  }
+};
+```
+
+---
+
+<!-- api/openai-chat.js (Vercel) -->
+
+```js
+// api/openai-chat.js (Vercel Serverless Function)
+// Deploy this in the `api/` folder for Vercel. Set OPENAI_API_KEY in Vercel project env vars.
+
+export default async function handler(req, res) {
+  try {
+    if (req.method !== 'POST') return res.status(405).send('Method not allowed');
+    const { message } = req.body || {};
+    if (!process.env.OPENAI_API_KEY) return res.status(500).json({ error: 'OPENAI_API_KEY not set' });
+
+    const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({ model: 'gpt-4o-mini', messages: [{ role: 'user', content: message }], max_tokens: 500 })
+    });
+    const data = await openaiRes.json();
+    const reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || data.choices?.[0]?.text || 'No reply';
+
+    res.status(200).json({ reply });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+}
+```
+
+---
+
+## Step-by-step instructions (beginner-friendly)
+
+1. **Open this file** in the canvas and edit the placeholders (club email, meeting times, project list, Discord/GitHub links). The `index.html` is a single file — everything lives there so it's easy to edit.
+
+2. **Test locally**:
+   - Quick: just double-click `index.html` to open in your browser. That works for static content.
+   - Better (recommended): run a simple server so fetch behaves the same as deployed: in the folder with `index.html` open a terminal and run:
+     - `python -m http.server 8000` (if you have Python)
+     - then open `http://localhost:8000`.
+
+3. **Demo chatbot (no API)**: the site defaults to a rules-based demo bot. Good for showing the club a working site without needing any keys.
+
+4. **If you want a real AI chatbot** (optional):
+   - Sign up for an AI provider (OpenAI is common) and get an API key.
+   - Deploy the serverless function example (Netlify or Vercel) from the code blocks above. Put each function file in the correct folder in your repo (Netlify: `netlify/functions/openai-chat.js`; Vercel: `api/openai-chat.js`).
+   - Add environment variable `OPENAI_API_KEY` with your key on the hosting provider (Netlify / Vercel settings).
+   - After deploy, set `API_MODE = true` in `index.html` and update `API_ENDPOINT` to the function path (`/.netlify/functions/openai-chat` for Netlify or `/api/openai-chat` for Vercel).
+   - **Important**: Never paste the API key directly into `index.html`.
+
+5. **Create a GitHub repo & push** (simple commands):
+   - `git init`
+   - `git add .`
+   - `git commit -m "Initial wat.ai site"`
+   - Create an empty GitHub repo (for example `wat-ai-site`) and follow the instructions GitHub gives to push (or use: `git remote add origin <repo-url>` then `git push -u origin main`).
+
+6. **Deploy**:
+   - **Netlify** (easy, supports serverless functions out of the box): Connect your GitHub repo, set build command to blank (static), set publish directory to `/` (root). Add `OPENAI_API_KEY` in Site settings > Environment.
+   - **Vercel** (also easy): Import repo on Vercel, set env var in Project Settings, deploy.
+   - **GitHub Pages**: Works for static-only site (demo chatbot only). GitHub Pages **cannot** securely host serverless functions — use Netlify/Vercel if you want real AI.
+
+7. **Share with the club**: once deployed, you'll have a URL (e.g., `https://yourname.github.io/repo` or `https://your-site.netlify.app`). Send it to the Wat.AI leads with a short note offering to hand it over or to keep editing.
+
+8. **Assets & content to ask the club for** (when you hand it over):
+   - Official club logo (SVG/PNG)
+   - Short mission statement (1–2 sentences)
+   - Current projects (short descriptions)
+   - Meeting schedule & location
+   - Discord invite link / GitHub org links
+   - Email address they want publicly listed
+
+9. **Security & privacy**: Do NOT store API keys in the client. Use serverless functions or a backend to keep keys secret.
+
+10. **Want me to finish it for you?** I can: customize the text with their real assets, replace placeholders, and produce a deploy-ready repo. If you want that, paste the club info (logo link or image, mission text, projects list, meeting time, contact email) and I’ll update the files.
+
+---
+
+If you want, I can now:
+- a) customize the site with real wat.ai content (you paste it here), or
+- b) give step-by-step commands to create the GitHub repo and deploy to Netlify with exact clicks and screenshots.
+
+Pick one and I’ll do it next.
+
+
+
+
+
