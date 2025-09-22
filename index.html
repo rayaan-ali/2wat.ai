@@ -30,25 +30,26 @@
   <!-- HERO -->
   <header class="max-w-5xl mx-auto px-6 py-12 text-center">
     <h1 class="text-4xl md:text-5xl font-extrabold">Wat.AI</h1>
-    <p class="mt-4 text-gray-600 max-w-2xl mx-auto">A student-run community at the University of Waterloo focused on machine learning, robotics, and practical AI projects. We build, learn, and collaborate.</p>
+    <p class="mt-4 text-gray-600 max-w-2xl mx-auto">WAT.ai is a student-run Artificial Intelligence (AI) Organization at the University of Waterloo and the undergraduate student body of the Waterloo AI Institute and member of the Sedra Student Design Centre (SSDC).</p>
   </header>
 
   <main class="max-w-5xl mx-auto px-6 pb-24">
     <!-- ABOUT -->
     <section id="about" class="bg-white p-6 rounded-lg shadow-sm mb-6">
       <h2 class="text-2xl font-semibold">About</h2>
-      <p class="mt-2 text-gray-600">Wat.AI brings together students across faculties to run project teams, workshops, and research collaborations. We emphasize hands-on learning and open collaboration.</p>
+      <p class="mt-2 text-gray-600">Our goal is to establish an environment to enable the continued growth of AI talent and suitable access to opportunities within the Waterloo community. We provide opportunities for undergraduate and graduate students to engage in impactful projects through collaboration with companies and internal research.
+</p>
     </section>
 
     <!-- PROJECTS -->
     <section id="projects" class="bg-white p-6 rounded-lg shadow-sm mb-6">
-      <h2 class="text-2xl font-semibold">Projects</h2>
+      <h2 class="text-2xl font-semibold">Impacts</h2>
       <ul class="mt-4 space-y-3 text-gray-700">
-        <li><strong>Micro-robot swarm</strong> — magnetic micro-robots navigation demo (WIP)</li>
-        <li><strong>Vision for RoboCar</strong> — object detection + control loop for small autonomous vehicle</li>
-        <li><strong>ML for medical signals</strong> — classification pipeline and visualizations</li>
+        <li><strong>450+ Program Graduates</strong> — Students & Researchers</li>
+        <li><strong>40+ Ai projects</strong> — all completed successfully</li>
+        <li><strong>20+ publications</strong> — all academic papers</li>
       </ul>
-      <p class="mt-3 text-sm text-gray-500">(Replace these project placeholders with the club's real projects in the file.)</p>
+      <p class="mt-3 text-sm text-gray-500") 
     </section>
 
     <!-- JOIN -->
@@ -56,16 +57,15 @@
       <h2 class="text-2xl font-semibold">Get Involved</h2>
       <p class="mt-2 text-gray-600">We run weekly meetings, workshops, and project sign-ups. All University of Waterloo students are welcome.</p>
       <ul class="mt-3 text-gray-700">
-        <li><strong>Weekly meeting</strong>: Mondays 7–8pm — E5 123 (example)</li>
-        <li><strong>Discord</strong>: invite link (put real link here)</li>
+        <li><strong>Weekly meeting</strong>: Mondays 7–8pm — Example (Wat.ai team can decide) </li>
+        <li><strong>Instagram</strong>:watai </li>
       </ul>
     </section>
 
     <!-- CONTACT -->
     <section id="contact" class="bg-white p-6 rounded-lg shadow-sm mb-6">
       <h2 class="text-2xl font-semibold">Contact</h2>
-      <p class="mt-2 text-gray-600">Email: <a href="mailto:wat.ai@uwaterloo.ca" class="text-blue-600">wat.ai@uwaterloo.ca</a></p>
-      <p class="mt-1 text-gray-600">GitHub / Discord / Social links: replace with real URLs in the file.</p>
+      <p class="mt-2 text-gray-600">Email: <a href="mailto:wat.ai@uwaterloo.ca" class="text-blue-600">contact@watai.ca</a></p>
     </section>
   </main>
 
@@ -91,9 +91,8 @@
   </div>
 
   <script>
-    // CONFIGURATION -----
-    // Toggle this to `true` if you've deployed the serverless function and set API_ENDPOINT.
-    const API_MODE = false; // <<-- change to true to enable real AI via serverless proxy
+    //future stuff
+    const API_MODE = false; // <<-- change to true to enable real AI via serverless prox
     // If API_MODE is true, set API_ENDPOINT to your deployed function path:
     // - Netlify example: '/.netlify/functions/openai-chat'
     // - Vercel example: '/api/openai-chat'
@@ -128,7 +127,6 @@
             body: JSON.stringify({ message: text })
           });
           const data = await res.json();
-          // remove the 'Thinking...' placeholder
           removeLastBotPlaceholder();
           appendMessage('bot', data.reply || 'Sorry, no reply.');
         } catch (err) {
@@ -137,7 +135,7 @@
           console.error(err);
         }
       } else {
-        // Local demo bot (rules-based) -- safe for live demos without any keys
+        // Local demo bot (rules-based) 
         appendMessage('bot', '...');
         setTimeout(() => {
           removeLastBotPlaceholder();
@@ -174,8 +172,6 @@
       if (/\b(contact|email|github|discord)\b/.test(p)) return 'Email wat.ai@uwaterloo.ca or check our GitHub and Discord links in the Contact section.';
       return "Thanks — we'll pass this to our team. If you want a detailed answer, enable the club's AI chatbot by deploying the serverless function and switching API_MODE to true.";
     }
-
-    // optional: keyboard shortcut to open chat (press "/")
     window.addEventListener('keydown', (e) => {
       if (e.key === '/') {
         e.preventDefault();
@@ -186,5 +182,3 @@
 
   </script>
 </body>
-</html>
-```
