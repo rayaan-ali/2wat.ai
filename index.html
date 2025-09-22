@@ -47,7 +47,6 @@
         <li><strong>450+ Program Graduates</strong> — Students & Researchers</li>
         <li><strong>40+ Ai projects</strong> — all completed successfully</li>
         <li><strong>20+ publications</strong> — all academic papers</li>
-      </ul>
       <p class="mt-3 text-sm text-gray-500") 
     </section>
 
@@ -58,7 +57,6 @@
       <ul class="mt-3 text-gray-700">
         <li><strong>Weekly meeting</strong>: Mondays 7–8pm — Example (Wat.ai team can decide) </li>
         <li><strong>Instagram</strong>:watai </li>
-      </ul>
     </section>
 
     <!-- CONTACT -->
@@ -169,7 +167,7 @@
       if (/\b(join|become|member|how to join)\b/.test(p)) return 'Students join via project signups or at our info sessions. Email wat.ai@uwaterloo.ca or drop by a meeting to get started.';
       if (/\b(meet|meeting|time|when)\b/.test(p)) return 'We usually meet weekly — check the Get Involved section on the site for the latest schedule.';
       if (/\b(contact|email|github|discord)\b/.test(p)) return 'Email wat.ai@uwaterloo.ca or check our GitHub and Discord links in the Contact section.';
-      return "Thanks — we'll pass this to our team. If you want a detailed answer, enable the club's AI chatbot by deploying the serverless function and switching API_MODE to true.";
+      return "Thanks — we'll pass this to our team.";
     }
     window.addEventListener('keydown', (e) => {
       if (e.key === '/') {
